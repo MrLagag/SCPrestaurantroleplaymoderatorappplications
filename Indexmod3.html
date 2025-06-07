@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCP Foundation - Moderator Screening</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Roboto+Mono:wght@300;400;500;600&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scp-black: #000000;
+      --scp-dark: #111111;
+      --scp-darker: #050505;
+      --scp-border: #333333;
+      --scp-text: #e0e0e0;
+      --scp-highlight: #ffffff;
+      --scp-accent: #888888;
+      --scp-glow: rgba(255, 255, 255, 0.1);
+      --scp-danger: #ff4444;
+      --scp-success: #44ff44;
+      --scp-warning: #ffaa44;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+      background-color: var(--scp-dark);
+      color: var(--scp-text);
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.01) 50%, transparent 100%);
+      overflow-x: hidden;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    /* Enhanced scrollbar for webkit browsers */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--scp-darker);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--scp-border);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--scp-accent);
+    }
+    
+    header {
+      background: linear-gradient(135deg, var(--scp-darker) 0%, var(--scp-black) 100%);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border-bottom: 2px solid var(--scp-highlight);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--scp-highlight), transparent);
+      animation: scanline 3s linear infinite;
+    }
+    
+    header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.01) 2px,
+          rgba(255, 255, 255, 0.01) 4px
+        );
+      pointer-events: none;
+    }
+    
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+      transition: all 0.3s ease;
+      animation: logoGlow 4s ease-in-out infinite alternate;
+    }
+    
+    .logo:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+    }
+    
+    header h1 {
+      font-family: 'Orbitron', 'Major Mono Display', monospace;
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--scp-highlight);
+      text-shadow: 
+        0 0 8px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(255, 255, 255, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.5);
+      animation: textGlow 3s ease-in-out infinite alternate;
+    }
+    
+    header p {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: var(--scp-accent);
+      letter-spacing: 2px;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeInUp 1s ease-out 0.5s forwards;
+    }
+    
+    .status-indicator {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--scp-border);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--scp-success);
+      backdrop-filter: blur(5px);
+    }
+    
+    .status-indicator::before {
+      content: "●";
+      margin-right: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+    
+    section {
+      padding: 3rem 2rem;
+      position: relative;
+      min-height: 70vh;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .scp-border {
+      position: absolute;
+      height: calc(100% - 100px);
+      top: 50px;
+      opacity: 0.08;
+      z-index: -1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .scp-border.left {
+      left: -20px;
+      transform: scaleX(-1);
+    }
+    
+    .scp-border.right {
+      right: -20px;
+    }
+    
+    section:hover .scp-border {
+      opacity: 0.12;
+    }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .protocol-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem;
+      border: 2px solid var(--scp-border);
+      background: 
+        linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 20px,
+          rgba(255, 255, 255, 0.01) 20px,
+          rgba(255, 255, 255, 0.01) 21px
+        );
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    .protocol-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--scp-highlight), transparent);
+      animation: scanline 4s linear infinite;
+    }
+    
+    .protocol-title {
+      font-family: 'Orbitron', 'Major Mono Display', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--scp-highlight);
+      margin-bottom: 1rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    
+    .protocol-subtitle {
+      color: var(--scp-accent);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      line-height: 1.8;
+    }
+    
+    .clearance-level {
+      display: inline-block;
+      background: linear-gradient(45deg, var(--scp-warning), #cc8800);
+      color: var(--scp-black);
+      padding: 0.3rem 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.8rem;
+      margin: 0.5rem;
+      box-shadow: 0 2px 8px rgba(255, 170, 68, 0.3);
+    }
+    
+    .form-wrapper {
+      max-width: 1000px;
+      margin: 2rem auto;
+      position: relative;
+      border: 2px solid var(--scp-border);
+      padding: 0;
+      background: 
+        linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+      border-radius: 8px;
+      box-shadow: 
+        0 0 30px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    
+    .form-wrapper.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .form-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--scp-highlight), transparent);
+      animation: scanline 2s linear infinite;
+    }
+    
+    .form-wrapper::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    
+    .form-header {
+      background: linear-gradient(135deg, var(--scp-darker) 0%, var(--scp-black) 100%);
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--scp-border);
+      text-align: center;
+    }
+    
+    .form-title {
+      font-family: 'Orbitron', 'Major Mono Display', monospace;
+      color: var(--scp-highlight);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-subtitle {
+      color: var(--scp-accent);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    
+    iframe {
+      width: 100%;
+      height: 1200px;
+      border: none;
+      background-color: transparent;
+      display: block;
+    }
+    
+    .toggle-btn {
+      background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+      color: var(--scp-highlight);
+      border: 2px solid var(--scp-highlight);
+      padding: 16px 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: 'Orbitron', 'JetBrains Mono', monospace;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      margin: 2rem auto;
+      display: block;
+      backdrop-filter: blur(5px);
+      box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    .toggle-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.6s ease;
+    }
+    
+    .toggle-btn::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid var(--scp-highlight);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      transition: all 0.3s ease;
+      opacity: 0.7;
+    }
+    
+    .toggle-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
+      box-shadow: 
+        0 6px 25px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .toggle-btn:hover::before {
+      left: 100%;
+    }
+    
+    .toggle-btn:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) translateX(2px);
+    }
+    
+    .toggle-btn:active {
+      transform: translateY(0);
+      box-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    .toggle-btn.active {
+      background: linear-gradient(135deg, rgba(255, 68, 68, 0.1) 0%, rgba(255, 68, 68, 0.05) 100%);
+      border-color: var(--scp-danger);
+      color: var(--scp-danger);
+    }
+    
+    .toggle-btn.active::after {
+      border-left-color: var(--scp-danger);
+      transform: translateY(-50%) rotate(90deg);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      font-size: 0.75rem;
+      color: var(--scp-accent);
+      border-top: 2px solid var(--scp-border);
+      background: linear-gradient(135deg, var(--scp-darker) 0%, var(--scp-black) 100%);
+      letter-spacing: 1px;
+      line-height: 1.8;
+      position: relative;
+      margin-top: 4rem;
+    }
+    
+    footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--scp-highlight), transparent);
+      animation: scanline 5s linear infinite;
+    }
+    
+    footer p {
+      margin: 0.8rem 0;
+      transition: color 0.3s ease;
+    }
+    
+    footer p:hover {
+      color: var(--scp-text);
+    }
+    
+    .classified {
+      color: var(--scp-warning);
+      font-weight: 500;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(255, 170, 68, 0.3);
+    }
+    
+    .foundation-seal {
+      display: inline-block;
+      margin: 0 0.5rem;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+    
+    .foundation-seal:hover {
+      opacity: 1;
+    }
+    
+    /* Loading Screen Enhancements */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        linear-gradient(135deg, var(--scp-black) 0%, var(--scp-darker) 100%),
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.01) 2px,
+          rgba(255, 255, 255, 0.01) 4px
+        );
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--scp-text);
+      font-size: 1rem;
+      z-index: 9999;
+      font-family: 'Orbitron', 'JetBrains Mono', monospace;
+      transition: opacity 0.5s ease;
+    }
+    
+    .loader {
+      border: 4px solid var(--scp-border);
+      border-top: 4px solid var(--scp-highlight);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 30px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    
+    .loading-text {
+      text-align: center;
+      margin-top: 20px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      color: var(--scp-highlight);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      font-family: 'Orbitron', monospace;
+      text-transform: uppercase;
+    }
+    
+    .loading-text::after {
+      content: "...";
+      animation: dots 1.5s steps(3, end) infinite;
+    }
+    
+    .loading-subtitle {
+      font-size: 0.8rem;
+      margin-top: 15px;
+      color: var(--scp-accent);
+      letter-spacing: 2px;
+      opacity: 0.8;
+    }
+    
+    .progress-bar {
+      width: 300px;
+      height: 2px;
+      background: var(--scp-border);
+      margin-top: 30px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--scp-highlight), var(--scp-accent));
+      width: 0%;
+      animation: loadProgress 2s ease-out forwards;
+    }
+    
+    /* Animations */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes scanline {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: "."; }
+      40% { content: ".."; }
+      60%, 100% { content: "..."; }
+    }
+    
+    @keyframes logoGlow {
+      0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); }
+      100% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5)); }
+    }
+    
+    @keyframes textGlow {
+      0% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 16px rgba(255, 255, 255, 0.1); }
+      100% { text-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 0 24px rgba(255, 255, 255, 0.15); }
+    }
+    
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes loadProgress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    
+    /* Enhanced Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        padding: 1.5rem 1rem;
+      }
+      
+      header h1 {
+        font-size: 1.6rem;
+        letter-spacing: 2px;
+      }
+      
+      .logo {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .scp-border {
+        display: none;
+      }
+      
+      iframe {
+        height: 1000px;
+      }
+      
+      section {
+        padding: 2rem 1rem;
+      }
+      
+      .toggle-btn {
+        padding: 14px 24px;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+      }
+      
+      .protocol-header {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      .protocol-title {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+      }
+      
+      .form-wrapper {
+        margin: 1rem;
+        border-radius: 4px;
+      }
+      
+      .status-indicator {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 1rem auto;
+        display: block;
+        width: fit-content;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+      }
+      
+      .toggle-btn {
+        padding: 12px 20px;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+      
+      iframe {
+        height: 900px;
+      }
+      
+      .protocol-title {
+        font-size: 1rem;
+      }
+      
+      .loader {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .progress-bar {
+        width: 250px;
+      }
+    }
+    
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      
+      .toggle-btn::before,
+      header::before,
+      .form-wrapper::before {
+        animation: none;
+      }
+    }
+    
+    /* Focus styles for better accessibility */
+    .toggle-btn:focus-visible {
+      outline: 2px solid var(--scp-highlight);
+      outline-offset: 4px;
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      :root {
+        --scp-text: #ffffff;
+        --scp-accent: #cccccc;
+        --scp-border: #666666;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">SCANNING SECURITY CLEARANCE</div>
+    <div class="loading-subtitle">Moderator Candidate Verification</div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <header>
+    <div class="status-indicator">
+      <span>SYSTEM ONLINE</span>
+    </div>
+    <div class="logo-container">
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#cccccc;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        
+        <!-- Outer containment circle -->
+        <circle cx="60" cy="60" r="55" fill="none" stroke="url(#logoGradient)" stroke-width="2" opacity="0.8" filter="url(#glow)"/>
+        
+        <!-- Warning triangles -->
+        <polygon points="60,15 85,45 35,45" fill="none" stroke="white" stroke-width="1.5" opacity="0.7"/>
+        <polygon points="25,75 45,105 5,105" fill="none" stroke="white" stroke-width="1.5" opacity="0.7"/>
+        <polygon points="95,75 115,105 75,105" fill="none" stroke="white" stroke-width="1.5" opacity="0.7"/>
+        
+        <!-- Central SCP Foundation emblem -->
+        <rect x="40" y="40" width="40" height="40" fill="none" stroke="url(#logoGradient)" stroke-width="3" filter="url(#glow)"/>
+        <line x1="40" y1="40" x2="80" y2="80" stroke="white" stroke-width="2.5" filter="url(#glow)"/>
+        <line x1="80" y1="40" x2="40" y2="80" stroke="white" stroke-width="2.5" filter="url(#glow)"/>
+        
+        <!-- SCP text -->
+        <text x="60" y="32" font-family="Orbitron" font-size="9" font-weight="700" fill="white" text-anchor="middle" filter="url(#glow)">SCP</text>
+        <text x="60" y="95" font-family="Orbitron" font-size="7" font-weight="400" fill="white" text-anchor="middle" filter="url(#glow)">MOD</text>
+        
+        <!-- Corner security markers -->
+        <rect x="2" y="2" width="10" height="10" fill="white" opacity="0.6"/>
+        <rect x="108" y="2" width="10" height="10" fill="white" opacity="0.6"/>
+        <rect x="2" y="108" width="10" height="10" fill="white" opacity="0.6"/>
+        <rect x="108" y="108" width="10" height="10" fill="white" opacity="0.6"/>
+        
+        <!-- Scanning lines with animation -->
+        <line x1="0" y1="25" x2="120" y2="25" stroke="white" stroke-width="0.5" opacity="0.4">
+          <animate attributeName="opacity" values="0.1;0.8;0.1" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="0" y1="95" x2="120" y2="95" stroke="white" stroke-width="0.5" opacity="0.4">
+          <animate attributeName="opacity" values="0.8;0.1;0.8" dur="3s" repeatCount="indefinite"/>
+        </line>
+        
+        <!-- Central core indicator -->
+        <circle cx="60" cy="60" r="3" fill="white" opacity="0.9">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+    <h1>Moderator Screening</h1>
+    <p>Ensure Order • Uphold Standards • Maintain Security</p>
+  </header>
+
+  <section>
+    <svg class="scp-border left" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 500" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:white;stop-opacity:0.1" />
+          <stop offset="50%" style="stop-color:white;stop-opacity:0.3" />
+          <stop offset="100%" style="stop-color:white;stop-opacity:0.1" />
+        </linearGradient>
+      </defs>
+      <path d="M0,0 L20,0 L10,250 L20,500 L0,500 L10,250 Z" fill="url(#borderGradient)"/>
+    </svg>
+    
+    <svg class="scp-border right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 500" preserveAspectRatio="none">
+      <path d="M0,0 L20,0 L10,250 L20,500 L0,500 L10,250 Z" fill="url(#borderGradient)"/>
+    </svg>
+
+    <div class="content-wrapper">
+      <div class="protocol-header">
+        <div class="protocol-title">Screening Protocol</div>
+        <div class="protocol-subtitle">
+          <span style="color: var(--scp-warning); font-weight: 600;">⚠ RESTRICTED ACCESS ⚠</span>
+          <br>
+          Authorized personnel only • Security clearance verification required
+          <br>
+          <span class="clearance-level">Level 2 Clearance</span>
+          <span style="margin-left: 1rem; font-size: 0.7rem; opacity: 0.8;">Document ID: MOD-SCR-2024</span>
+        </div>
+      </div>
+
+      <button class="toggle-btn" onclick="toggleForm()" aria-label="Access screening protocol">
+        <span>Access Screening Protocol</span>
+      </button>
+      
+      <div class="form-wrapper hidden" id="formContainer">
+        <div class="form-header">
+          <div class="form-title">Moderator Application Portal</div>
+          <div class="form-subtitle">Complete all sections • Responses are monitored</div>
+        </div>
+        <iframe src="https://forms.gle/hYYa4SXXWMXTqwsv8" allowfullscreen title="Moderator Screening Form"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      <span class="foundation-seal">◆</span>
+      SCP Foundation Community Oversight Division
+      <span class="foundation-seal">◆</span>
+    </p>
+    <p class="classified">Clearance Level 2 Required • All Applications Are Monitored</p>
+    <p>Unauthorized access constitutes a breach of Foundation security protocols</p>
+    <p style="margin-top: 1.5rem; font-size: 0.65rem; opacity: 0.6;">
+      Secure • Contain • Protect
+    </p>
+  </footer>
+
+  <script>
+    // Enhanced loading sequence
+    window.onload = () => {
+      // Simulate loading progress
+      const progressFill = document.querySelector('.progress-fill');
+      if (progressFill) {
+        progressFill.style.animation = 'loadProgress 2s ease-out forwards';
+      }
+      
+      setTimeout(() => {
+        document.getElementById("loading").style.opacity = "0";
+        setTimeout(() => {
+          document.getElementById("loading").style.display = "none";
+          
+          // Trigger entrance animations
+          document.body.style.opacity = "1";
+          
+          // Enhanced typewriter effect for header
+          const tagline = document.querySelector('header p');
+          if (tagline) {
+            const text = tagline.textContent;
+            tagline.textContent = '';
+            tagline.style.opacity = '1';
+            let i = 0;
+            const typing = setInterval(() => {
+              if (i < text.length) {
+                tagline.textContent += text.charAt(i);
+                i++;
+              } else {
+                clearInterval(typing);
+              }
+            }, 30);
+          }
+        }, 500);
+      }, 2500);
+    };
+
+    function toggleForm() {
+      const form = document.getElementById("formContainer");
+      const btn = document.querySelector('.toggle-btn');
+      const btnText = btn.querySelector('span');
+      
+      form.classList.toggle("hidden");
+      btn.classList.toggle("active");
+      
+      if (!form.classList.contains("hidden")) {
+        btnText.textContent = "Terminate Connection";
+        
+        // Enhanced background effect when form is active
+        document.body.style.backgroundImage = `
+          radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+          linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%)
+        `;
+        
+        // Show form with animation
+        setTimeout(() => {
+          form.classList.add("show");
+        }, 50);
+        
+        // Smooth scroll to form
+        setTimeout(() => {
+          form.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }, 300);
+        
+      } else {
+        btnText.textContent = "Access Screening Protocol";
+        form.classList.remove("show");
+        
+        // Reset background
+        document.body.style.backgroundImage = `
+          radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+          linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.01) 50%, transparent 100%)
+        `;
+        
+        // Smooth scroll back to button
+        btn.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+
+    // Enhanced interaction feedback
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add subtle hover effects to various elements
+      const interactiveElements = document.querySelectorAll('.toggle-btn, .logo, footer p');
+      
+      interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+          this.style.transform = this.style.transform || '';
+        });
+      });
+
+      // Add keyboard navigation support
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const form = document.getElementById("formContainer");
+          const btn = document.querySelector('.toggle-btn');
+          
+          if (!form.classList.contains("hidden")) {
+            toggleForm();
+          }
+        }
+      });
+
+      // Enhanced accessibility
+      const form = document.getElementById("formContainer");
+      const btn = document.querySelector('.toggle-btn');
+      
+      btn.setAttribute('aria-expanded', 'false');
+      
+      // Update aria-expanded when form toggles
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isHidden = form.classList.contains('hidden');
+            btn.setAttribute('aria-expanded', !isHidden);
+          }
+        });
+      });
+      
+      observer.observe(form, { attributes: true });
+    });
+
+    // Add some dynamic effects
+    setInterval(() => {
+      const borders = document.querySelectorAll('.scp-border');
+      borders.forEach(border => {
+        border.style.opacity = Math.random() * 0.1 + 0.05;
+      });
+    }, 3000);
+  </script>
+</body>
+</html>
